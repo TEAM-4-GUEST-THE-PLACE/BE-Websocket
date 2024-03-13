@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { Server } from 'socket.io';
@@ -12,6 +12,22 @@ const io = new Server(server, {
     origin: 'http://localhost:8001',
     methods: ['GET', 'POST'],
   },
+});
+
+io.on('connection', (socket) => {
+  socket.on('joinRoom', ({ username, room }) => {
+    const user = {
+      id: socket.id,
+      username,
+      room,
+    }
+    socket.join(user.room)
+  });
+
+  socket.on("sendData", (data) => {
+    socket.to(data.room).emit("receiveData", data)
+  })
+
 });
 
 server.listen(8001, () => {
