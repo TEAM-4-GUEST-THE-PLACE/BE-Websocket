@@ -7,13 +7,20 @@ const app = express();
 const server = http.createServer(app);
 app.use(cors());
 
+interface IUsers {
+  id: string;
+  username: string;
+  room: string
+}
+
 const io = new Server(server, {
   cors: {
-    origin: '*'
+    origin: '*',
+    methods: ['GET', 'POST'],
   },
 });
 
-const users: Users[] = [];
+const users: IUsers[] = [];
 
 io.on('connection', (socket) => {
   socket.on('joinRoom', ({ username }) => {
@@ -40,6 +47,12 @@ io.on('connection', (socket) => {
     }
     socket.broadcast.emit("usersList", users);
     socket.emit("usersList", users);
+  });
+
+  socket.on('endRoom', (data) => {
+    users.splice(users.indexOf(data), 1);
+    socket.broadcast.emit("usersList", users);
+    socket.emit("usersList", users)
   });
 
   socket.on('sendData', (data) => {
