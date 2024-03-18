@@ -38,6 +38,8 @@ io.on('connection', (socket) => {
         console.log(socket.rooms);
       }
     }
+    socket.broadcast.emit("usersList", users);
+    socket.emit("usersList", users);
   });
 
   socket.on('sendData', (data) => {
