@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { Server } from 'socket.io';
+import axios from 'axios';
 
 const app = express();
 const server = http.createServer(app);
@@ -44,15 +45,23 @@ io.on('connection', (socket) => {
       users.push(user);
       socket.join(user.room);
       console.log(socket.rooms);
+      console.log(users);
     }
     socket.broadcast.emit('usersList', users);
     socket.emit('usersList', users);
+  });
+
+  socket.on('quiz', async (data) => {
+    const quiz = await axios.get('http://localhost:8000/api/questions');
+    console.log(quiz.data)
+    socket.emit('quiz', quiz.data);
   });
 
   socket.on('endRoom', (data) => {
     users.splice(users.indexOf(data), 1);
     socket.broadcast.emit('usersList', users);
     socket.emit('usersList', users);
+    console.log(users);
   });
 
   socket.on('sendData', (data) => {
