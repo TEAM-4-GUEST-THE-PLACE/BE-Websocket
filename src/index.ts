@@ -22,8 +22,7 @@ const io = new Server(server, {
 });
 
 let users: IUsers[] = [];
-let countDown: any;
-const second = 30;
+let count = 30;
 
 io.on('connection', (socket) => {
   socket.on('joinRoom', ({ username }) => {
@@ -51,10 +50,24 @@ io.on('connection', (socket) => {
     socket.emit('usersList', users);
   });
 
+  socket.on('countdown', (data) => {
+    let count = data.count
+    if(count === data.count) {
+     const counting = setInterval(() => {
+        count--;
+        socket.emit('countdown', count); 
+        console.log(count)
+        if(count === 0) {
+          clearInterval(counting)
+        }
+      }, 1000);
+    }
+  })
+
   socket.on('quiz', async (data) => {
-    const quiz = await axios.get('http://localhost:8000/api/questions');
+    const quiz = await axios.get('http://localhost:5001/api/v1/questions');
+    io.to(data.room).emit('quiz', quiz.data);
     console.log(quiz.data)
-    socket.emit('quiz', quiz.data);
   });
 
   socket.on('endRoom', (data) => {
