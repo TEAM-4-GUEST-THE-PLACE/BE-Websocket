@@ -50,24 +50,26 @@ io.on('connection', (socket) => {
     socket.emit('usersList', users);
   });
 
+  io.emit('clients-total', users.length);
+
   socket.on('countdown', (data) => {
-    let count = data.count
-    if(count === data.count) {
-     const counting = setInterval(() => {
+    let count = data.count;
+    if (count === data.count) {
+      const counting = setInterval(() => {
         count--;
-        socket.emit('countdown', count); 
-        console.log(count)
-        if(count === 0) {
-          clearInterval(counting)
+        socket.emit('countdown', count);
+        console.log(count);
+        if (count === 0) {
+          clearInterval(counting);
         }
       }, 1000);
     }
-  })
+  });
 
   socket.on('quiz', async (data) => {
     const quiz = await axios.get('http://localhost:5001/api/v1/questions');
     socket.to(data.room).emit('quiz', quiz.data);
-    console.log(socket.rooms)
+    console.log(socket.rooms);
   });
 
   socket.on('endRoom', (data) => {
@@ -81,7 +83,6 @@ io.on('connection', (socket) => {
     users = users.filter((user) => user.id !== socket.id);
     socket.broadcast.emit('usersList', users);
     socket.emit('usersList', users);
-    socket.leave(data.room);
     console.log(users);
   });
 
@@ -90,7 +91,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('usersList', users);
     socket.emit('usersList', users);
     console.log(users);
-  })
+  });
 
   socket.on('sendData', (data) => {
     socket.to(data.room).emit('receiveData', data);
