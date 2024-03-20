@@ -67,21 +67,30 @@ io.on('connection', (socket) => {
   socket.on('quiz', async (data) => {
     const quiz = await axios.get('http://localhost:5001/api/v1/questions');
     socket.to(data.room).emit('quiz', quiz.data);
-    console.log(quiz.data)
+    console.log(socket.rooms)
   });
 
-  // socket.on('endRoom', (data) => {
-  //   users.splice(users.indexOf(data), 1);
-  //   socket.broadcast.emit('usersList', users);
-  //   socket.emit('usersList', users);
-  //   console.log(users);
-  // });
+  socket.on('endRoom', (data) => {
+    users.splice(users.indexOf(data), 1);
+    socket.broadcast.emit('usersList', users);
+    socket.emit('usersList', users);
+    console.log(users);
+  });
+
+  socket.on('exitRoom', (data) => {
+    users = users.filter((user) => user.id !== socket.id);
+    socket.broadcast.emit('usersList', users);
+    socket.emit('usersList', users);
+    socket.leave(data.room);
+    console.log(users);
+  });
 
   socket.on('disconnect', () => {
     users = users.filter((user) => user.id !== socket.id);
     socket.broadcast.emit('usersList', users);
+    socket.emit('usersList', users);
     console.log(users);
-  });
+  })
 
   socket.on('sendData', (data) => {
     socket.to(data.room).emit('receiveData', data);
