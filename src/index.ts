@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('exitRoom', (data) => {
-    users = users.filter((user) => user.id !== socket.id);
+    users = users.filter((user) => user.id !== data.id);
     socket.broadcast.emit('usersList', users);
     socket.emit('usersList', users);
     console.log(users);
